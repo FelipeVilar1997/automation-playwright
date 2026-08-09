@@ -4,9 +4,9 @@ import {
   type FullConfig,
 } from '@playwright/test';
 
-import { LoginPage } from '../../pages/login.page.ts';
-import { DashboardPage } from '../../pages/dashboard.page.ts';
-import { users } from '../../test-data/user.ts';
+import { LoginPage } from '../../pages/login.page';
+import { DashboardPage } from '../../pages/dashboard.page';
+import { users } from '../../test-data/user';
 
 const authFile = 'playwright/.auth/admin.json';
 

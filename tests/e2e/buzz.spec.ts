@@ -1,4 +1,4 @@
-import { test } from '../../fixtures/app.fixture.ts';
+import { test } from '../../fixtures/app.fixture';
 
 test.describe('Buzz Screen', () => {
     test.beforeEach(async ({

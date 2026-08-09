@@ -2,7 +2,7 @@ import { test as base, expect, } from '@playwright/test';
 
 import { BuzzPage } from '../pages/buzz.page';
 import { DashboardPage } from '../pages/dashboard.page';
-import { Logger } from '../utils/logger.ts';
+import { Logger } from '../utils/logger';
 
 type AppFixtures = {
     dashboardPage: DashboardPage;
