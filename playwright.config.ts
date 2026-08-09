@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
 
+  globalSetup: './tests/setup/global.setup.ts',
+
   fullyParallel: true,
 
   forbidOnly: !! process.env.CI,
@@ -32,16 +34,10 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
-    },
-
-    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'],
              storageState: 'playwright/.auth/admin.json',
        },
-       dependencies: ['setup'],
     },
 
     // {

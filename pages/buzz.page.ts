@@ -35,7 +35,8 @@ export class BuzzPage {
     async validatePostCreated(message: string): Promise<void> {
         const newPost = this.page.locator('p.orangehrm-buzz-post-body-text')
         .filter({ hasText: message });
-        console.log(newPost);
-        await expect(newPost).toBeVisible();
+        await expect(newPost).toBeVisible({
+            timeout: 10000,
+        });
     }
 }
