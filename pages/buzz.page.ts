@@ -39,9 +39,8 @@ export class BuzzPage {
 
     async writeNewPost(message: string): Promise<void> {
         await this.postInput.fill(message);
-    }
-    async clickPost(){
         await this.buttonNewPost.click();
+
     }
 
     async openModalSharePhoto(){
@@ -53,16 +52,47 @@ export class BuzzPage {
     }
 
     async insertFileInPost(filePath: string, message: string): Promise<void>{
-        await this.photoPostInput.fill(message);
         await this.photoInput.setInputFiles(filePath);
         await expect(this.buttonConfirmShare).toBeEnabled();
+        
+        await this.photoPostInput.fill(message);
+
+        const responsePostCreated = this.page.waitForResponse(response =>
+            response.url().includes('/api/v2/buzz/posts') &&
+            response.request().method() === 'POST'
+        );
+
         await this.buttonConfirmShare.click();
+    
+        const response = await responsePostCreated;
+
+        expect(response.status()).toBe(200);
+    }
+
+    async reloadBuzzFeed(postId: string): Promise<void> {
+    const feedResponsePromise = this.page.waitForResponse(async response => {
+        if (
+            !response.url().includes('/api/v2/buzz/feed') ||
+            response.request().method() !== 'GET' ||
+            response.status() !== 200
+        ) {
+            return false;
+        }
+
+        const body = await response.json();
+
+        return body.data.some(
+            (post: { text?: string }) =>
+                post.text?.includes(postId)
+            );
+        });
+        await this.page.reload();
+        await feedResponsePromise;
     }
 
     async validateMessageSuccessPost() {
         await expect(this.txtSuccessMessagePosted).toBeVisible();
     }
-
     async validatePostCreated(message: string): Promise<void> {
         const newPost = this.page.getByText(message, {
             exact: true,
@@ -70,5 +100,17 @@ export class BuzzPage {
         await expect(newPost).toBeVisible({
             timeout: 10000,
         });
+    }
+    async validatePostCreatedWithImage(message: string): Promise<void>{
+        const postText = this.page
+            .locator('.orangehrm-buzz-post-body-text')
+            .filter({ hasText: message });
+
+        await expect(postText).toBeVisible({
+            timeout: 20000,
+        });
+        const postBody = postText.locator('..');
+
+        await expect(postBody.locator('.orangehrm-buzz-photos img')).toBeVisible();
     }
 }
