@@ -6,6 +6,7 @@ export class BuzzPage {
 
     private readonly txtSuccessMessagePosted: Locator;
     private readonly txtModalSharePhotos: Locator;
+    private readonly txtInvalidFile: Locator;
 
     private readonly buttonMenuBuzz: Locator;
     private readonly buttonNewPost: Locator;
@@ -24,6 +25,7 @@ export class BuzzPage {
 
         this.txtSuccessMessagePosted = page.getByText('Successfully Saved');
         this.txtModalSharePhotos = page.getByRole('dialog').getByText('Share Photos', { exact: true });
+        this.txtInvalidFile = page.getByRole('dialog').getByText("Only 'gif', 'png', 'jpg', 'jpeg' type images are allowed!");
 
         this.buttonMenuBuzz = page.getByRole('link', { name: 'Buzz' });
         this.buttonNewPost = page.getByRole('button', { name: 'Post', exact: true });
@@ -40,7 +42,6 @@ export class BuzzPage {
     async writeNewPost(message: string): Promise<void> {
         await this.postInput.fill(message);
         await this.buttonNewPost.click();
-
     }
 
     async openModalSharePhoto(){
@@ -51,8 +52,13 @@ export class BuzzPage {
        await expect(this.buttonConfirmShare).toBeDisabled();
     }
 
-    async insertFileInPost(filePath: string, message: string): Promise<void>{
+    async selectFile(filePath: string): Promise<void> {
         await this.photoInput.setInputFiles(filePath);
+    }
+
+    async insertFileInPost(filePath: string, message: string): Promise<void>{
+        await this.selectFile(filePath);
+
         await expect(this.buttonConfirmShare).toBeEnabled();
         
         await this.photoPostInput.fill(message);
@@ -69,25 +75,24 @@ export class BuzzPage {
         expect(response.status()).toBe(200);
     }
 
-    async reloadBuzzFeed(postId: string): Promise<void> {
-    const feedResponsePromise = this.page.waitForResponse(async response => {
-        if (
-            !response.url().includes('/api/v2/buzz/feed') ||
-            response.request().method() !== 'GET' ||
-            response.status() !== 200
-        ) {
-            return false;
-        }
+    async reloadBuzzFeed(): Promise<void> {
+        const feedResponsePromise = this.page.waitForResponse(response => 
+            response.url().includes('/api/v2/buzz/feed') &&
+            response.request().method() === 'GET' &&
+            response.status() === 200
+    );
 
-        const body = await response.json();
-
-        return body.data.some(
-            (post: { text?: string }) =>
-                post.text?.includes(postId)
-            );
-        });
         await this.page.reload();
-        await feedResponsePromise;
+
+        const response = await feedResponsePromise;
+
+        await response.finished();
+    }
+
+    async validateInvalidFile(){
+        await expect(this.buttonConfirmShare).toBeDisabled();
+        await expect(this.txtInvalidFile).toBeVisible();
+        await expect(this.buttonConfirmShare).toBeDisabled();
     }
 
     async validateMessageSuccessPost() {
