@@ -11,6 +11,8 @@
   "include": [
     "tests/**/*.ts",
     "pages/**/*.ts",
+    "fixtures/**/*.ts",
+    "utils/**/*.ts",
     "test-data/**/*.ts",
     "playwright.config.ts"
   ]

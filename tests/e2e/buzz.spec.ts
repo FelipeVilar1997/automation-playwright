@@ -57,7 +57,7 @@ test.describe('Buzz Screen', () => {
         const imagePath = path.resolve(
             'test-data',
             'files',
-            'test-valid.jpeg'
+            'test-valid.png'
         )
 
         await test.step('Write a new post', async () => {
